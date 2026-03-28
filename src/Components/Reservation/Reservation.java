@@ -1,5 +1,7 @@
-package Components;
+package Components.Reservation;
 
+import Components.Customer;
+import Components.PaymentStatus;
 import Components.Rooms.Room;
 
 import java.time.LocalDate;
