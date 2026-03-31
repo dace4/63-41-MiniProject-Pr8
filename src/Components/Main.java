@@ -72,8 +72,11 @@ public class Main{
                                 reservation.setReservationStatus(ReservationStatus.CheckedIn);
                                 reservationManager.updateRoomStatus(room.getRoomNumber(), RoomStatus.Occupied);
 
-                                System.out.println("[Staff] CHECK-IN: Guest "+reservation.getCustomer().getName()+
-                                        " is now in Room "+room.getRoomNumber());
+                                System.out.println("[Staff] CHECK-IN: " + reservation.getCustomer().getName()
+                                        + " -> Room " + room.getRoomNumber()
+                                        + " (" + room.getRoomCategory() + ")"
+                                        + " | Stay: " + reservation.getCheckInDate() + " to " + reservation.getCheckOutDate()
+                                        + " | Price: CHF " + room.getPrice());
 
                             }// CHECK-OUT Logic: If CheckedIn and ends today
                              else if (reservation.getReservationStatus() == ReservationStatus.CheckedIn &&
@@ -81,8 +84,10 @@ public class Main{
 
                                 reservation.setReservationStatus(ReservationStatus.CheckedOut);
                                 reservationManager.updateRoomStatus(room.getRoomNumber(),RoomStatus.Cleaning);
-                                System.out.println("[Staff] CHECK-OUT: Room "+room.getRoomNumber()+
-                                        " is now being cleaned. ");
+                                System.out.println("[Staff] CHECK-OUT: Room " + room.getRoomNumber()
+                                        + " (" + room.getRoomCategory() + ")"
+                                        + " | Guest: " + reservation.getCustomer().getName()
+                                        + " | Status changed to CLEANING");
                             }
                              /*
                              Because the simulation is running for 15 real-world seconds there will never be
@@ -149,8 +154,13 @@ public class Main{
 
                         Reservation reservation = reservationManager.bookFirstAvailableRoom(guest,pref,start,end);
                         if(reservation != null){
-                            System.out.println("Guest "+customerId+" booked room "+reservation.getRoom().getRoomNumber()
-                            +"\n Guest contact: "+guest.getEmail());
+                            System.out.println("[Booking] " + guest.getName()
+                                    + " booked Room " + reservation.getRoom().getRoomNumber()
+                                    + " (" + reservation.getRoom().getRoomCategory() + ")"
+                                    + " from " + reservation.getCheckInDate()
+                                    + " to " + reservation.getCheckOutDate()
+                                    + " | Contact: " + guest.getEmail()
+                                    + " | Price: CHF " + reservation.getRoom().getPrice());
                         }
                         try {
                             Thread.sleep(2000);
@@ -167,21 +177,23 @@ public class Main{
             @Override
             public void run() {
                 while(!Thread.currentThread().isInterrupted()){
+                    try {
+                        Thread.sleep(8000);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        break;
+                    }
+
                     List<Room> allRooms = reservationManager.getRooms();
 
                     for (int i = 0; i < allRooms.size(); i++) {
                         Room currentRoom = allRooms.get(i);
                         float currentPrice = currentRoom.getPrice();
 
-                        // Increase the price by 2% due to higher demand
                         reservationManager.updateRoomPrice(currentRoom.getRoomNumber(), currentPrice * 1.02f);
                     }
+
                     System.out.println("Market price updated");
-                    try {
-                        Thread.sleep(8000);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
                 }
             }
         });
